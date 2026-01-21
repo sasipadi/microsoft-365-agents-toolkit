@@ -14,6 +14,7 @@ import { getCreateCommand } from "./create";
 import { deployCommand } from "./deploy";
 import { entraAppCommand } from "./entraAppUpdate";
 import { envCommand } from "./env";
+import { initCommand } from "./init/init";
 import { listCommand } from "./list";
 import { m365LaunchInfoCommand } from "./m365LaunchInfo";
 import { m365SideloadingCommand } from "./m365Sideloading";
@@ -53,11 +54,12 @@ export const rootCommand: CLICommand = {
     regenerateCommand(),
     provisionCommand,
     deployCommand,
-    ...(featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled) ? [shareCommand] : []),
+    shareCommand,
     previewCommand,
     envCommand,
     permissionCommand,
     upgradeCommand,
+    ...(featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles) ? [initCommand] : []),
     listCommand,
     helpCommand,
     teamsappUpdateCommand,

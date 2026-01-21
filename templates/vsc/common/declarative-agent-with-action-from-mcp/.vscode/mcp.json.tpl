@@ -1,11 +1,19 @@
 {
   "servers": {
-    // This is the MCP server configuration file for VS Code to use.
-    // Click on Start button to fetch tools from your server
-    // Then, click the “ATK: Update Action with MCP” button from CodeLens to select the wanted tools from the prompt list.
+{{#IsLocalMCP}}
+{{#MCPLocalServers}}
+    "{{name}}": {
+      "type": "stdio",
+      "command": "{{command}}",
+      "args": [{{args}}]
+    }{{#notLast}},{{/notLast}}
+{{/MCPLocalServers}}
+{{/IsLocalMCP}}
+{{^IsLocalMCP}}
     "{{ServerName}}": {
-			"url": "{{MCPForDAServerUrl}}",
-			"type": "http"
-		}
+      "type": "http",
+      "url": "{{MCPForDAServerUrl}}"
+    }
+{{/IsLocalMCP}}
   }
 }

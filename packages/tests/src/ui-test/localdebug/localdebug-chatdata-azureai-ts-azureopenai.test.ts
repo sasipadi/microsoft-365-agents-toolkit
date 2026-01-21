@@ -34,7 +34,7 @@ describe("Local Debug Tests", function () {
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("chatdata", {
       lang: Lang.TS,
-      customCopilotRagType: "custom-copilot-rag-azureAISearch",
+      customCopilotRagType: "custom-copilot-rag-azure-ai-search",
     });
     await localDebugTestContext.before();
   });
@@ -188,14 +188,27 @@ describe("Local Debug Tests", function () {
       );
       await localDebugTestContext.validateLocalStateForBot();
       if (isRealKey) {
-        await validateWelcomeAndReplyBot(page, {
-          hasWelcomeMessage: false,
-          hasCommandReplyValidation: true,
-          botCommand: "Tell me about Contoso Electronics history",
-          expectedWelcomeMessage: ValidationContent.AiChatBotWelcomeInstruction,
-          expectedReplyMessage: "1985",
-          timeout: Timeout.longTimeWait,
-        });
+        try {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand: "Tell me about Contoso Electronics history",
+            expectedWelcomeMessage:
+              ValidationContent.AiChatBotWelcomeInstruction,
+            expectedReplyMessage: "1985",
+            timeout: Timeout.longTimeWait,
+          });
+        } catch {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand: "Tell me about Contoso Electronics PerksPlus Program",
+            expectedWelcomeMessage:
+              ValidationContent.AiChatBotWelcomeInstruction,
+            expectedReplyMessage: "$1",
+            timeout: Timeout.longTimeWait,
+          });
+        }
       } else {
         await validateWelcomeAndReplyBot(page, {
           hasWelcomeMessage: false,

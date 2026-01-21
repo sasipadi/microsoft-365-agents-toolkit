@@ -28,6 +28,7 @@ import {
   err,
   ok,
 } from "@microsoft/teamsfx-api";
+import AdmZip from "adm-zip";
 import axios from "axios";
 import { assert, expect } from "chai";
 import fs from "fs-extra";
@@ -37,6 +38,7 @@ import mockedEnv, { RestoreFn } from "mocked-env";
 import * as os from "os";
 import * as path from "path";
 import sinon from "sinon";
+import packageJson from "../../package.json";
 import {
   FxCore,
   PackageService,
@@ -46,14 +48,14 @@ import {
 } from "../../src";
 import { ConstantString } from "../../src/common/constants";
 import * as daSpecParser from "../../src/common/daSpecParser";
-import { FeatureFlagName, FeatureFlags, featureFlagManager } from "../../src/common/featureFlags";
+import { FeatureFlags, featureFlagManager } from "../../src/common/featureFlags";
 import { TOOLS, setTools } from "../../src/common/globalVars";
 import * as projectHelper from "../../src/common/projectSettingsHelper";
 import { TeamsfxVersionState, projectTypeChecker } from "../../src/common/projectTypeChecker";
 import { TelemetryEvent } from "../../src/common/telemetry";
+import templateConfigModule from "../../src/common/templates-config.json";
 import * as CommonTools from "../../src/common/tools";
 import { MetadataV3, VersionSource, VersionState } from "../../src/common/versionMetadata";
-import { ActionInjector } from "../../src/component/configManager/actionInjector";
 import {
   DriverDefinition,
   DriverInstance,
@@ -90,6 +92,7 @@ import * as declarativeAgentHelper from "../../src/component/generator/declarati
 import * as oneDriveSharePointHandler from "../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
 import * as openApiSpecHelper from "../../src/component/generator/openApiSpec/helper";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
+import * as generatorUtils from "../../src/component/generator/utils";
 import { LaunchHelper } from "../../src/component/m365/launchHelper";
 import { envUtil } from "../../src/component/utils/envUtil";
 import { metadataUtil } from "../../src/component/utils/metadataUtil";
@@ -124,11 +127,6 @@ import {
   KnowledgeSourceOptions,
 } from "../../src/question/constants";
 import * as createQuestions from "../../src/question/create";
-import {
-  TabCapabilityOptions,
-  TeamsAgentCapabilityOptions,
-} from "../../src/question/scaffold/vsc/CapabilityOptions";
-import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction, randomAppName } from "./utils";
 
@@ -528,7 +526,7 @@ describe("Core basic APIs", () => {
 
       assert.include(
         res.error.message,
-        "For new Microsoft 365 Agents Toolkit projects, make sure you've run provision or debug to set these variables correctly."
+        "For new projects, run local debugging or provision a remote environment to set these variables."
       );
     }
   });
@@ -828,9 +826,6 @@ describe("Core basic APIs", () => {
         [QuestionNames.AppName]: appName,
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
         [QuestionNames.ProgrammingLanguage]: "typescript",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsOptionId,
-        [QuestionNames.TeamsAppType]: TeamsAgentCapabilityOptions.others().id,
-        [QuestionNames.TeamsCapability]: TabCapabilityOptions.nonSsoTab().id,
         [QuestionNames.Folder]: os.tmpdir(),
         [QuestionNames.TemplateName]: TemplateNames.Tab,
         stage: Stage.create,
@@ -2092,7 +2087,7 @@ describe("createEnvCopyV3", async () => {
     "# this is a comment",
     "TEAMSFX_ENV=dev",
     "APP_NAME_SUFFIX=dev",
-    "AGENT_SCOPE=shared",
+    "AGENT_SCOPE=personal",
     "",
     "_KEY1=value1",
     "KEY2=value2",
@@ -2140,8 +2135,8 @@ describe("createEnvCopyV3", async () => {
       "APP_NAME_SUFFIX's value should be new env name"
     );
     assert(
-      writeStreamContent[3] === `AGENT_SCOPE=shared${os.EOL}`,
-      "AGENT_SCOPE's value should be shared"
+      writeStreamContent[3] === `AGENT_SCOPE=personal${os.EOL}`,
+      "AGENT_SCOPE's value should be personal"
     );
     assert(writeStreamContent[4] === `${os.EOL}`, "empty line should be coped");
     assert(
@@ -2254,10 +2249,6 @@ describe("Teams app APIs", async () => {
   it("validate with test cases", async () => {
     const appName = await mockV3Project();
 
-    const mockedEnvRestore = mockedEnv({
-      [FeatureFlagName.AsyncAppValidation]: "true",
-    });
-
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Folder]: os.tmpdir(),
@@ -2269,8 +2260,6 @@ describe("Teams app APIs", async () => {
     const runSpy = sinon.spy(ValidateWithTestCasesDriver.prototype, "execute");
     await core.validateApplication(inputs);
     sinon.assert.calledOnce(runSpy);
-
-    mockedEnvRestore();
   });
 
   it("create app package", async () => {
@@ -6310,160 +6299,6 @@ describe("addPlugin", async () => {
     }
   });
 
-  it("call kiota: success redirect to Kiota", async () => {
-    const mockedEnvRestore = mockedEnv({
-      [FeatureFlagName.KiotaIntegration]: "true",
-    });
-
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-
-    const core = new FxCore(tools);
-
-    const result = await core.addPlugin(inputs);
-    assert.isTrue(result.isOk());
-    if (result.isOk()) {
-      assert.equal(result.value.lastCommand, "addPlugin");
-      assert.equal(result.value.manifestPath, "manifest.json");
-    }
-
-    mockedEnvRestore();
-  });
-
-  it("call kiota: success create project with input", async () => {
-    const mockedEnvRestore = mockedEnv({
-      [FeatureFlagName.KiotaIntegration]: "true",
-    });
-
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "aiplugin-apiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "spec-apimanifest.yaml",
-      [QuestionNames.ApiOperation]: "aiplugin-apiplugin.json",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      declarativeCopilots: [
-        {
-          file: "test1.json",
-          id: "action_1",
-        },
-      ],
-    };
-    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
-      {
-        authName: "mockedAuthName",
-        authType: "apiKey",
-        registrationId: "MOCKED_REGISTRATION_ID",
-        specPath: "test.yaml",
-      },
-    ]);
-    sandbox
-      .stub(openApiSpecHelper, "injectAuthAction")
-      .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
-    sandbox.stub(fs, "copyFile").resolves();
-    sandbox.stub(openApiSpecHelper, "generateAdaptiveCardInPluginManifestForKiota").resolves();
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
-    sandbox.stub(openApiSpecHelper, "generateScaffoldingSummary").resolves("");
-    sandbox.stub(fs, "pathExists").callsFake(async (path: string) => {
-      if (path.endsWith("openapi_1.yaml")) {
-        return true;
-      }
-      if (path.endsWith("ai-plugin_1.json")) {
-        return true;
-      }
-      if (path.endsWith("openapi_2.yaml")) {
-        return false;
-      }
-      if (path.endsWith("ai-plugin_2.json")) {
-        return false;
-      }
-      if (path.endsWith("aiplugin-apiplugin.json")) {
-        return true;
-      }
-      if (path.endsWith("spec-apimanifest.yaml")) {
-        return true;
-      }
-      if (path.endsWith("aiplugin_1-apiplugin.json")) {
-        return false;
-      }
-      if (path.endsWith("spec_1-apimanifest.yaml")) {
-        return false;
-      }
-      return true;
-    });
-    sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox
-      .stub(copilotGptManifestUtils, "addAction")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
-
-    const core = new FxCore(tools);
-    sandbox
-      .stub(openApiSpecHelper, "generateFromApiSpec")
-      .callsFake(
-        async (
-          specParser,
-          teamsManifestPath,
-          inputs,
-          context,
-          component,
-          projectType,
-          outputFilePath
-        ) => {
-          assert.isTrue(outputFilePath.destinationApiSpecFilePath.includes("apimanifest.yaml"));
-          assert.isTrue(outputFilePath.pluginManifestFilePath?.includes("apiplugin.json"));
-          return ok({ warnings: [] });
-        }
-      );
-
-    const showMessageStub = sandbox
-      .stub(tools.ui, "showMessage")
-      .callsFake((level, message, modal, items) => {
-        if (level == "info") {
-          return Promise.resolve(
-            ok(getLocalizedString("core.addPlugin.success.viewPluginManifest"))
-          );
-        } else if (level === "warn") {
-          return Promise.resolve(ok("Add"));
-        } else {
-          throw new NotImplementedError("TEST", "showMessage");
-        }
-      });
-
-    const openFileStub = sandbox.stub(tools.ui, "openFile").resolves();
-
-    const result = await core.addPlugin(inputs);
-    if (result.isErr()) {
-      console.log(result.error);
-    }
-    assert.isTrue(result.isOk());
-    assert.isTrue(showMessageStub.calledTwice);
-    assert.isTrue(openFileStub.calledOnce);
-
-    if (await fs.pathExists(inputs.projectPath!)) {
-      await fs.remove(inputs.projectPath!);
-    }
-
-    mockedEnvRestore();
-  });
-
   describe("projectVersionCheck", async () => {
     it("invalid project", async () => {
       sandbox.stub(projectHelper, "isValidProjectV3").returns(false);
@@ -7333,451 +7168,6 @@ describe("regeneratePlugin", async () => {
     assert.isTrue(result.isErr());
     if (result.isErr()) {
       assert.equal(result.error, manifestError);
-    }
-  });
-});
-
-describe("kiotaRegenerate", async () => {
-  const sandbox = sinon.createSandbox();
-  let mockedEnvRestore: RestoreFn;
-
-  beforeEach(() => {
-    setTools(tools);
-    mockedEnvRestore = mockedEnv({
-      [FeatureFlagName.KiotaIntegration]: "true",
-    });
-  });
-
-  afterEach(() => {
-    sandbox.restore();
-    mockedEnvRestore();
-  });
-
-  it("happy path: successfully regenerate", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      declarativeCopilots: [
-        {
-          file: "test1.json",
-          id: "action_1",
-        },
-      ],
-    };
-
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
-      ok({
-        actions: [
-          {
-            id: "action_1",
-            file: "test-aiplugin.json",
-          },
-        ],
-      } as DeclarativeCopilotManifestSchema)
-    );
-    sandbox.stub(fs, "readJson").resolves({
-      capabilities: {
-        conversation_starters: [],
-      },
-      runtimes: [
-        {
-          type: "OpenApi",
-          auth: {
-            type: "None",
-          },
-          spec: {
-            url: "apiSpecificationFile/openapi.json",
-          },
-          run_for_functions: ["listRepairs"],
-        },
-      ],
-      functions: [
-        {
-          name: "listRepairs",
-          description: "List all repairs",
-        },
-      ],
-    } as any);
-
-    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
-      {
-        authName: "mockedAuthName",
-        authType: "apiKey",
-        registrationId: "MOCKED_REGISTRATION_ID",
-        specPath: "test.yaml",
-      },
-    ]);
-    sandbox
-      .stub(openApiSpecHelper, "injectAuthAction")
-      .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
-
-    sandbox.stub(SpecParser.prototype, "validate").resolves({
-      status: ValidationStatus.Valid,
-      warnings: [],
-      errors: [],
-    });
-
-    sandbox.stub(SpecParser.prototype, "generateForCopilot").resolves({
-      allSuccess: true,
-      warnings: [],
-    });
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isOk());
-  });
-
-  it("happy path: add new action", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      declarativeCopilots: [
-        {
-          file: "test1.json",
-          id: "action_1",
-        },
-      ],
-    };
-
-    sandbox.stub(fs, "readJson").resolves({
-      capabilities: {
-        conversation_starters: [],
-      },
-      runtimes: [
-        {
-          type: "OpenApi",
-          auth: {
-            type: "None",
-          },
-          spec: {
-            url: "apiSpecificationFile/openapi.json",
-          },
-          run_for_functions: ["listRepairs"],
-        },
-      ],
-      functions: [
-        {
-          name: "listRepairs",
-          description: "List all repairs",
-        },
-      ],
-    } as any);
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
-      ok({
-        actions: [
-          {
-            id: "action_1",
-            file: "test-aiplugin1.json",
-          },
-        ],
-      } as DeclarativeCopilotManifestSchema)
-    );
-
-    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
-      {
-        authName: "mockedAuthName",
-        authType: "apiKey",
-        registrationId: "MOCKED_REGISTRATION_ID",
-        specPath: "test.yaml",
-      },
-    ]);
-    sandbox
-      .stub(openApiSpecHelper, "injectAuthAction")
-      .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
-    sandbox
-      .stub(copilotGptManifestUtils, "addAction")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isOk());
-  });
-
-  it("should throw error if fail to update plugin manifest", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      declarativeCopilots: [
-        {
-          file: "test1.json",
-          id: "action_1",
-        },
-      ],
-    };
-
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
-      ok({
-        actions: [
-          {
-            id: "action_1",
-            file: "test-aiplugin.json",
-          },
-        ],
-      } as DeclarativeCopilotManifestSchema)
-    );
-    sandbox.stub(SpecParser.prototype, "list").resolves({
-      APIs: [
-        {
-          api: "GET /user/{userId}",
-          server: "https://example.com",
-          operationId: "getExample",
-          isValid: true,
-          reason: [],
-          auth: {
-            name: "bearerAuth",
-            authScheme: {
-              type: "http",
-              scheme: "bearer",
-            },
-          },
-        },
-      ],
-      allAPICount: 1,
-      validAPICount: 1,
-    });
-    sandbox
-      .stub(openApiSpecHelper, "injectAuthAction")
-      .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
-    sandbox
-      .stub(openApiSpecHelper, "generateFromApiSpec")
-      .resolves(err(new UserError("fake-error-source", "fake-error-name", "fake-error-message")));
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isErr());
-  });
-
-  it("should throw error if no project path", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-    };
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isErr());
-  });
-
-  it("should throw error if failed to read app manifest", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox
-      .stub(manifestUtils, "_readAppManifest")
-      .resolves(err(new UserError("fakeError", "fakeError", "", "")));
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isErr());
-    if (result.isErr()) {
-      assert.equal(result.error.name, "fakeError");
-    }
-  });
-
-  it("should throw error if no copilotAgents in manifest", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const manifest = new TeamsAppManifest();
-
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isErr());
-    if (result.isErr()) {
-      assert.equal(result.error.name, "TeamsAppMissingRequiredCapability");
-    }
-  });
-
-  it("should throw error if failed to getManifestPath", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      declarativeCopilots: [
-        {
-          file: "test1.json",
-          id: "action_1",
-        },
-      ],
-    };
-
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox
-      .stub(copilotGptManifestUtils, "getManifestPath")
-      .resolves(err(new UserError("fakeError", "fakeError", "", "")));
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isErr());
-    if (result.isErr()) {
-      assert.equal(result.error.name, "fakeError");
-    }
-  });
-
-  it("should throw error if failed to readCopilotGptManifestFile", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      declarativeCopilots: [
-        {
-          file: "test1.json",
-          id: "action_1",
-        },
-      ],
-    };
-
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(err(new UserError("fakeError", "fakeError", "", "")));
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isErr());
-    if (result.isErr()) {
-      assert.equal(result.error.name, "fakeError");
-    }
-  });
-
-  it("should throw error if failed to add action", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
-      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      declarativeCopilots: [
-        {
-          file: "test1.json",
-          id: "action_1",
-        },
-      ],
-    };
-
-    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
-      ok({
-        actions: [
-          {
-            id: "action_1",
-            file: "test-aiplugin1.json",
-          },
-        ],
-      } as DeclarativeCopilotManifestSchema)
-    );
-    sandbox.stub(SpecParser.prototype, "list").resolves({
-      APIs: [
-        {
-          api: "GET /user/{userId}",
-          server: "https://example.com",
-          operationId: "getExample",
-          isValid: true,
-          reason: [],
-          auth: {
-            name: "bearerAuth",
-            authScheme: {
-              type: "http",
-              scheme: "bearer",
-            },
-          },
-        },
-      ],
-      allAPICount: 1,
-      validAPICount: 1,
-    });
-    sandbox
-      .stub(openApiSpecHelper, "injectAuthAction")
-      .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
-    sandbox
-      .stub(copilotGptManifestUtils, "addAction")
-      .resolves(err(new UserError("fakeError", "fakeError", "", "")));
-
-    const core = new FxCore(tools);
-    const result = await core.kiotaRegenerate(inputs);
-    assert.isTrue(result.isErr());
-
-    if (result.isErr()) {
-      assert.equal(result.error.name, "fakeError");
     }
   });
 });
@@ -9617,407 +9007,348 @@ describe("addKnowledge", async () => {
   });
 });
 
-describe("updateActionWithMCP", () => {
-  const tools = new MockTools();
+describe("fetchOnlineTemplateMetadata", () => {
   const sandbox = sinon.createSandbox();
-  const projectPath = "/test/project";
-  const pluginManifestPath = "/test/project/ai-plugin.json";
-  const mcpServerUrl = "https://example.com/mcp";
-  const serverName = "testServer";
+  let core: FxCore;
+  let mockedEnvRestore: RestoreFn | undefined;
 
   beforeEach(() => {
     setTools(tools);
+    core = new FxCore(tools);
   });
 
   afterEach(() => {
     sandbox.restore();
+    if (mockedEnvRestore) {
+      mockedEnvRestore();
+      mockedEnvRestore = undefined;
+    }
   });
 
-  it("should successfully update action with MCP without auth", async () => {
-    const core = new FxCore(tools);
-    const inputs: Inputs = {
-      projectPath,
-      platform: Platform.VSCode,
-      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
-      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
-      [QuestionNames.MCPForDAServerName]: serverName,
-      [QuestionNames.MCPForDAAuth]: "None",
-      [QuestionNames.MCPForDAAvailableTools]: [
-        {
-          name: "testTool",
-          description: "Test tool description",
-          inputSchema: {
-            type: "object",
-            properties: { param1: { type: "string" } },
-            required: ["param1"],
-          },
-        },
-      ],
-      [QuestionNames.MCPForDAPreFetchTools]: ["testTool"],
-      ignoreLockByUT: true,
-    };
+  it("should skip download when using local template", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(true);
 
-    const existingPlugin = {
-      functions: [],
-      runtimes: [],
-    };
-
-    sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
-    const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
-
-    const showMessageStub = sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
-    const openFileStub = sandbox.stub(tools.ui, "openFile").resolves();
-
-    const result = await core.updateActionWithMCP(inputs);
+    const result = await core.fetchOnlineTemplateMetadata();
 
     assert.isTrue(result.isOk());
-    assert.isTrue(writeJSONStub.calledOnce);
-    assert.isTrue(showMessageStub.calledOnce);
-    assert.isTrue(openFileStub.calledOnce);
+    if (result.isOk()) {
+      assert.isUndefined(result.value);
+    }
   });
 
-  it("should successfully update action with OAuth authentication", async () => {
-    const core = new FxCore(tools);
-    const inputs: Inputs = {
-      projectPath,
-      platform: Platform.VSCode,
-      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
-      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
-      [QuestionNames.MCPForDAServerName]: serverName,
-      [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
-      [QuestionNames.MCPForDAAuthType]: "oauth",
-      [QuestionNames.MCPForDAAuthWellKnownUrl]:
-        "https://example.com/.well-known/oauth-authorization-server",
-      [QuestionNames.MCPForDAAvailableTools]: [
-        {
-          name: "testTool",
-          description: "Test tool description",
-          inputSchema: {
-            type: "object",
-            properties: { param1: { type: "string" } },
-            required: ["param1"],
-          },
-        },
-      ],
-      [QuestionNames.MCPForDAPreFetchTools]: ["testTool"],
-      ignoreLockByUT: true,
-    };
-
-    const existingPlugin = {
-      functions: [],
-      runtimes: [],
-    };
-
-    const oauthMetadata = {
-      authorization_endpoint: "https://example.com/oauth/authorize",
-      token_endpoint: "https://example.com/oauth/token",
-      refresh_endpoint: "https://example.com/oauth/refresh",
-    };
-
-    sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
-    const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
-    sandbox.stub(axios, "get").resolves({ status: 200, data: oauthMetadata });
-    const injectOAuthStub = sandbox
-      .stub(ActionInjector, "injectCreateOAuthActionForMCP")
-      .resolves();
-
-    const showMessageStub = sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
-    const openFileStub = sandbox.stub(tools.ui, "openFile").resolves();
-
-    const result = await core.updateActionWithMCP(inputs);
-
-    assert.isTrue(result.isOk());
-    assert.isTrue(injectOAuthStub.calledOnce);
-    assert.isTrue(writeJSONStub.calledOnce);
-    assert.isTrue(showMessageStub.calledOnce);
-    assert.isTrue(openFileStub.calledOnce);
-  });
-
-  it("should successfully update action with OAuth authentication using metadata URL", async () => {
-    const core = new FxCore(tools);
-    const inputs: Inputs = {
-      projectPath,
-      platform: Platform.VSCode,
-      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
-      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
-      [QuestionNames.MCPForDAServerName]: serverName,
-      [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
-      [QuestionNames.MCPForDAAuthType]: "oauth",
-      [QuestionNames.MCPForDAAuthMetadataUrl]: "https://example.com/mcp/metadata",
-      [QuestionNames.MCPForDAAvailableTools]: [
-        {
-          name: "testTool",
-          description: "Test tool description",
-          inputSchema: {
-            type: "object",
-            properties: { param1: { type: "string" } },
-            required: ["param1"],
-          },
-        },
-      ],
-      [QuestionNames.MCPForDAPreFetchTools]: ["testTool"],
-      ignoreLockByUT: true,
-    };
-
-    const existingPlugin = {
-      functions: [],
-      runtimes: [],
-    };
-
-    const mcpMetadata = {
-      authorization_servers: ["https://example.com/oauth"],
-    };
-
-    const oauthMetadata = {
-      authorization_endpoint: "https://example.com/oauth/authorize",
-      token_endpoint: "https://example.com/oauth/token",
-      refresh_endpoint: "https://example.com/oauth/refresh",
-    };
-
-    sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
-    const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
+  it("should download metadata for rc version when coreVersion contains 'rc'", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
     sandbox
-      .stub(axios, "get")
-      .onFirstCall()
-      .resolves({ status: 200, data: mcpMetadata })
-      .onSecondCall()
-      .resolves({ status: 200, data: oauthMetadata });
-    const injectOAuthStub = sandbox
-      .stub(ActionInjector, "injectCreateOAuthActionForMCP")
-      .resolves();
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0-rc.1");
 
-    const showMessageStub = sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
-    const openFileStub = sandbox.stub(tools.ui, "openFile").resolves();
-
-    const result = await core.updateActionWithMCP(inputs);
-
-    assert.isTrue(result.isOk());
-    assert.isTrue(injectOAuthStub.calledOnce);
-    assert.isTrue(writeJSONStub.calledOnce);
-    assert.isTrue(showMessageStub.calledOnce);
-    assert.isTrue(openFileStub.calledOnce);
-  });
-
-  it("should return error when plugin manifest file does not exist", async () => {
-    const core = new FxCore(tools);
-    const inputs: Inputs = {
-      projectPath,
-      platform: Platform.VSCode,
-      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
-      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
-      [QuestionNames.MCPForDAServerName]: serverName,
-      ignoreLockByUT: true,
-    };
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
 
     sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
 
-    const result = await core.updateActionWithMCP(inputs);
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(
+      fetchZipStub.calledWith(
+        "https://example.com/releases/download/templates@0.0.0-rc/metadata.zip"
+      )
+    );
+    assert.isTrue(unzipStub.calledOnce);
+    assert.isTrue(writeFileStub.calledOnce);
+  });
+
+  it("should download metadata for stable version", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+
+    const getTemplateLatestVersionStub = sandbox
+      .stub(generatorUtils, "getTemplateLatestVersion")
+      .resolves("2.0.0");
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(getTemplateLatestVersionStub.calledOnce);
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(
+      fetchZipStub.calledWith("https://example.com/releases/download/templates@2.0.0/metadata.zip")
+    );
+    assert.isTrue(unzipStub.calledOnce);
+    assert.isTrue(writeFileStub.calledWith(sinon.match.string, "2.0.0", { encoding: "utf-8" }));
+  });
+
+  it("should skip download when cached version matches latest version", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(packageJson, "version").value("1.0.0");
+
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl");
+    const unzipStub = sandbox.stub(generatorUtils, "unzip");
+
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "readFile").resolves("2.0.0" as any);
+    sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.equal(fetchZipStub.called, false);
+    assert.equal(unzipStub.called, false);
+  });
+
+  it("should download when cached version file does not exist", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(unzipStub.calledOnce);
+  });
+
+  it("should download when cached version differs from latest version", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "readFile").resolves("1.0.0" as any); // Old cached version
+    sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(unzipStub.calledOnce);
+  });
+
+  it("should re-download when cached version file is corrupted", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "readFile").rejects(new Error("File read error"));
+    sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(unzipStub.calledOnce);
+  });
+
+  it("should handle alpha version correctly", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0-alpha.1");
+
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(
+      fetchZipStub.calledWith(
+        "https://example.com/releases/download/templates@0.0.0-rc/metadata.zip"
+      )
+    );
+  });
+
+  it("should handle beta version correctly", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0-beta.1");
+
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(
+      fetchZipStub.calledWith(
+        "https://example.com/releases/download/templates@0.0.0-rc/metadata.zip"
+      )
+    );
+  });
+
+  it("should return error when fetchZipFromUrl fails", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    sandbox
+      .stub(generatorUtils, "fetchZipFromUrl")
+      .rejects(new Error("Network error: Failed to fetch"));
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
 
     assert.isTrue(result.isErr());
     if (result.isErr()) {
-      // Check error source/name since localization strings might be missing
-      assert.isTrue(
-        result.error.source === "MCPForDAPluginManifestNotFound" ||
-          result.error.name === "PluginManifestNotFound" ||
-          result.error.message.includes("PluginManifestNotFound")
-      );
+      assert.equal(result.error.source, "FetchOnlineTemplateMetadata");
+      assert.equal(result.error.name, "DownloadFailed");
+      assert.include(result.error.message, "Network error: Failed to fetch");
     }
   });
 
-  it("should return error when projectPath is undefined", async () => {
-    const core = new FxCore(tools);
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
-      ignoreLockByUT: true,
-    };
+  it("should return error when unzip fails", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
 
-    try {
-      const result = await core.updateActionWithMCP(inputs);
-      // If it returns a result instead of throwing, check if it's an error
-      if (result.isErr()) {
-        assert.include(result.error.message.toLowerCase(), "project");
-      } else {
-        assert.fail("Expected error to be thrown or returned");
-      }
-    } catch (error: any) {
-      // If it throws, check the error message
-      assert.include(error.message.toLowerCase(), "project");
-    }
-  });
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    const mockZip = new AdmZip();
+    sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    sandbox.stub(generatorUtils, "unzip").rejects(new Error("Unzip failed: Invalid archive"));
 
-  it("should return error when MCP tools are not provided", async () => {
-    const core = new FxCore(tools);
-    const inputs: Inputs = {
-      projectPath,
-      platform: Platform.VSCode,
-      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
-      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
-      [QuestionNames.MCPForDAServerName]: serverName,
-      ignoreLockByUT: true,
-    };
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
 
-    const existingPlugin = {
-      functions: [],
-      runtimes: [],
-    };
-
-    sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
-
-    const result = await core.updateActionWithMCP(inputs);
+    const result = await core.fetchOnlineTemplateMetadata();
 
     assert.isTrue(result.isErr());
     if (result.isErr()) {
-      // Check error source/name since localization strings might be missing
-      assert.isTrue(
-        result.error.source === "MCPForDAPreFetchToolsNotFound" ||
-          result.error.name === "PreFetchToolsNotFound" ||
-          result.error.message.includes("PreFetchToolsNotFound")
-      );
+      assert.equal(result.error.source, "FetchOnlineTemplateMetadata");
+      assert.equal(result.error.name, "DownloadFailed");
+      assert.include(result.error.message, "Unzip failed: Invalid archive");
     }
   });
 
-  it("should properly filter and update existing MCP runtimes", async () => {
-    const core = new FxCore(tools);
-    const inputs: Inputs = {
-      projectPath,
-      platform: Platform.VSCode,
-      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
-      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
-      [QuestionNames.MCPForDAServerName]: serverName,
-      [QuestionNames.MCPForDAAuth]: "None",
-      [QuestionNames.MCPForDAAvailableTools]: [
-        {
-          name: "newTool",
-          description: "New tool description",
-          inputSchema: {
-            type: "object",
-            properties: { param1: { type: "string" } },
-            required: ["param1"],
-          },
-        },
-      ],
-      [QuestionNames.MCPForDAPreFetchTools]: ["newTool"],
-      ignoreLockByUT: true,
-    };
+  it("should return error when fs.writeFile fails", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
 
-    const existingPlugin = {
-      functions: [
-        {
-          name: "oldTool",
-          description: "Old tool",
-          parameters: { type: "object" },
-        },
-      ],
-      runtimes: [
-        {
-          type: "RemoteMCPServer",
-          spec: {
-            url: mcpServerUrl,
-            enable_dynamic_discovery: false,
-          },
-          run_for_functions: ["oldTool"],
-        },
-        {
-          type: "RemoteMCPServer",
-          spec: {
-            url: "https://other.com/mcp",
-            enable_dynamic_discovery: false,
-          },
-          run_for_functions: ["otherTool"],
-        },
-      ],
-    };
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    const mockZip = new AdmZip();
+    sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    sandbox.stub(generatorUtils, "unzip").resolves();
 
-    let writtenPlugin: any;
-    sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
-    sandbox.stub(fs, "writeJSON").callsFake((path, data) => {
-      writtenPlugin = data;
-      return Promise.resolve();
-    });
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "writeFile").rejects(new Error("Permission denied"));
 
-    const showMessageStub = sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
-    const openFileStub = sandbox.stub(tools.ui, "openFile").resolves();
+    const result = await core.fetchOnlineTemplateMetadata();
 
-    const result = await core.updateActionWithMCP(inputs);
-
-    assert.isTrue(result.isOk());
-
-    // Verify that old tool functions were removed and new ones added
-    assert.equal(writtenPlugin.functions.length, 1);
-    assert.equal(writtenPlugin.functions[0].name, "newTool");
-
-    // Verify that the existing runtime for the same server was removed and new one added
-    const mcpRuntimes = writtenPlugin.runtimes.filter(
-      (r: any) => r.type === "RemoteMCPServer" && r.spec.url === mcpServerUrl
-    );
-    assert.equal(mcpRuntimes.length, 1);
-    assert.deepEqual(mcpRuntimes[0].run_for_functions, ["newTool"]);
-
-    // Verify that other runtimes are preserved
-    const otherRuntimes = writtenPlugin.runtimes.filter(
-      (r: any) => r.type === "RemoteMCPServer" && r.spec.url === "https://other.com/mcp"
-    );
-    assert.equal(otherRuntimes.length, 1);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.source, "FetchOnlineTemplateMetadata");
+      assert.equal(result.error.name, "DownloadFailed");
+      assert.include(result.error.message, "Permission denied");
+    }
   });
 
-  it("should handle provisionResources call when user clicks Provision", async () => {
-    const core = new FxCore(tools);
-    const inputs: Inputs = {
-      projectPath,
-      platform: Platform.VSCode,
-      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
-      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
-      [QuestionNames.MCPForDAServerName]: serverName,
-      [QuestionNames.MCPForDAAuth]: "None",
-      [QuestionNames.MCPForDAAvailableTools]: [
-        {
-          name: "testTool",
-          description: "Test tool description",
-          inputSchema: {
-            type: "object",
-            properties: { param1: { type: "string" } },
-            required: ["param1"],
-          },
-        },
-      ],
-      [QuestionNames.MCPForDAPreFetchTools]: ["testTool"],
-      ignoreLockByUT: true,
-    };
+  it("should use correct metadata directory path", async () => {
+    sandbox.stub(templateConfigModule, "useLocalTemplate").value(false);
+    sandbox.stub(templateConfigModule, "tagPrefix").value("templates@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
 
-    const existingPlugin = {
-      functions: [],
-      runtimes: [],
-    };
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    const mockZip = new AdmZip();
+    sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
 
-    sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
-    const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
+    sandbox.stub(fs, "pathExists").resolves(false);
+    const ensureDirStub = sandbox.stub(fs, "ensureDir").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
 
-    // Mock the showMessage to return "Provision" to trigger provision call
-    const showMessageStub = sandbox.stub(tools.ui, "showMessage").resolves(ok("Provision"));
-    const openFileStub = sandbox.stub(tools.ui, "openFile").resolves();
-    const provisionStub = sandbox.stub(core, "provisionResources").resolves(ok(undefined));
+    const expectedMetadataDir = path.join(os.homedir(), ".fx");
 
-    const result = await core.updateActionWithMCP(inputs);
+    const result = await core.fetchOnlineTemplateMetadata();
 
     assert.isTrue(result.isOk());
-    assert.isTrue(showMessageStub.calledOnce);
-    assert.isTrue(openFileStub.calledOnce);
-    assert.isTrue(writeJSONStub.calledOnce);
-
-    // Wait a bit for the async provision call
-    await new Promise((resolve) => setTimeout(resolve, 10));
-    assert.isTrue(provisionStub.calledOnce);
+    assert.isTrue(ensureDirStub.calledWith(expectedMetadataDir));
+    assert.isTrue(unzipStub.calledWith(mockZip, expectedMetadataDir));
+    assert.isTrue(
+      writeFileStub.calledWith(path.join(expectedMetadataDir, "template-version.txt"), "2.0.0", {
+        encoding: "utf-8",
+      })
+    );
   });
 });

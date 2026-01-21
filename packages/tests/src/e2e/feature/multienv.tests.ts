@@ -2,11 +2,11 @@
 // Licensed under the MIT license.
 
 /**
- * @author Yuan Tian <tianyuan@microsoft.com>
+ * @author Huihui Wu <huihuiwu@microsoft.com>
  */
 
 import { it } from "@microsoft/extra-shot-mocha";
-import M365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
+import { M365ProviderUserPassword } from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365LoginUserPassword";
 import { AppPackageFolderName, BuildFolderName } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import { expect } from "chai";
@@ -38,12 +38,12 @@ describe("Multi Env Happy Path for Azure", function () {
 
   it(
     `Can create/provision/deploy/build/validate/launch remote a azure bot project`,
-    { testPlanCaseId: 24137694, author: "tianyuan@microsoft.com" },
+    { testPlanCaseId: 24137694, author: "huihuiwu@microsoft.com" },
     async function () {
       try {
         let result;
         result = await execAsync(
-          `atk new --interactive false --app-name ${appName} --capability bot --programming-language typescript`,
+          `atk new --interactive false --app-name ${appName} --capability default-bot --programming-language typescript`,
           {
             cwd: testFolder,
             env: processEnv,
@@ -155,7 +155,7 @@ describe("Multi Env Happy Path for Azure", function () {
           const context = await readContextMultiEnvV3(projectPath, env);
           teamsAppId = context[EnvConstants.TEAMS_APP_ID];
           chai.assert.isNotNull(teamsAppId);
-          AppStudioValidator.provider = M365Login;
+          AppStudioValidator.provider = M365ProviderUserPassword.getInstance();
           await AppStudioValidator.validatePublish(teamsAppId!);
         }
       } catch (e: any) {

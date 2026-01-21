@@ -40,6 +40,7 @@ client = AzureOpenAI(
     api_version="2024-12-01-preview",
     api_key=config.azure_openai_api_key,
     azure_endpoint=config.azure_openai_endpoint,
+    azure_deployment=config.azure_openai_deployment_name,
 )
 {{/useAzureOpenAI}}
 
@@ -61,10 +62,10 @@ async def on_members_added(context: TurnContext, _state: TurnState):
     await context.send_activity("Hi there! I'm an agent to chat with you.")
 
 # Listen for ANY message to be received. MUST BE AFTER ANY OTHER MESSAGE HANDLERS
-@agent_app.activity(ActivityTypes.Message)
+@agent_app.activity(ActivityTypes.message)
 async def on_message(context: TurnContext, _state: TurnState):
     # Echo back users request
-    result = await client.chat.completions.create(
+    result = client.chat.completions.create(
         messages=[
             {
                 "role": "system",

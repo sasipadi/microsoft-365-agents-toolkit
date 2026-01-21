@@ -3139,24 +3139,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.basicCustomEngineAgentOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Intelligent agent that is built with Microsoft 365 Agents SDK and connects to your LLM]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 エージェント SDK で構築され、LLM に接続するインテリジェント エージェント]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.basicCustomEngineAgentOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Basic Custom Engine Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[基本的なカスタム エンジン エージェント]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.capability.botMessageExtension.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Create a message extension using Agents SDK]]></Val>
@@ -3310,98 +3292,11 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotBasicOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Agent that chats with users in Teams built with Microsoft Teams SDK and connects to LLMs]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft Teams SDK で構築された Teams のユーザーとチャットし、LLM に接続するエージェント]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Agent that chats with users in Teams built with Teams AI Library and connects to LLMs]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotBasicOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[General Teams Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[一般的な Teams エージェント]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Basic Agent for Teams]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRag.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select an option to load your data]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[データを読み込むオプションを選択します]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotRag.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Chat With Your Data]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[データとのチャット]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Load your data from Azure AI Search service]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Azure AI Search Service からデータを読み込みます]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Azure AI Search]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Azure AI 検索]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagCustomApiOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Load your data from custom APIs based on OpenAPI description document]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[OpenAPI 記述ドキュメントに基づいて、カスタム API からデータを読み込みます]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagCustomApiOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Custom API]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[カスタム API]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagCustomizeOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Decide how to load your data]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[データの読み込み方法を決定します]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagCustomizeOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Customize]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[カスタマイズ]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3424,27 +3319,21 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagOption.detail" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.capability.customCopilotTravelOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Agent that uses your content and knowledge to accurately answer domain-specific questions]]></Val>
+          <Val><![CDATA[A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[あなたのコンテンツと知識を活用してドメイン固有の質問に正確に答えるエージェント]]></Val>
+            <Val><![CDATA[Microsoft 365 エージェント SDK、Microsoft 365 Retrieval API、および Agent Framework を使用して構築された旅行計画エージェント]]></Val>
           </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Expand AI bot's knowledge with your content to get accurate answers to your questions]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagOption.label" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.capability.customCopilotTravelOption.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Agent with Data]]></Val>
+          <Val><![CDATA[Travel Agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[データを含む Teams エージェント]]></Val>
+            <Val><![CDATA[旅行エージェント]]></Val>
           </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Chat With Your Data]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3612,60 +3501,6 @@
           <Val><![CDATA[Select OpenAPI Description Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[OpenAPI 記述ドキュメントを選択する]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.teamsAgent.collaborator.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Agent that enhances collaboration in group chat, channels or meetings through summarization, task management, and conversation search]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[要約、タスク管理、会話検索を通じてグループ チャット、チャネル、または会議でのコラボレーションを強化するエージェント]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.teamsAgent.collaborator.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Teams Collaborator Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams コラボレーター エージェント]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.teamsAgent.others.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[App that uses tab, bot and message extension]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[タブ、ボット、メッセージ拡張機能を使用するアプリ]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.teamsAgent.others.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Other Teams Capabilities]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[その他の Teams の機能]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.weatherAgentOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[A weather forecast agent that is built with Microsoft 365 Agents SDK and LangChain]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 エージェント SDK と LangChain を使用して構築された天気予報エージェント]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.weatherAgentOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Weather Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[天気エージェント]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4027,6 +3862,87 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpLocalServer.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select a local MCP server]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ローカル MCP サーバーを選択する]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpLocalServer.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Local MCP Server]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ローカル MCP サーバー]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpLocalServer.validationHelp" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[At least one MCP server must be selected]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[少なくとも 1 台の MCP サーバーを選択する必要があります]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpServerType.local.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connect to an MCP server running on your local Windows system]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ローカル Windows システムで実行されている MCP サーバーに接続する]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpServerType.local.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Local MCP Server]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ローカル MCP サーバー]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpServerType.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select where your MCP server is hosted]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP サーバーがホストされている場所を選択する]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpServerType.remote.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connect to an MCP server hosted remotely via HTTP]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[HTTP 経由でリモートでホストされている MCP サーバーに接続する]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpServerType.remote.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Remote MCP Server]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[リモート MCP サーバー]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpServerType.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MCP Server Type]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP サーバーの種類]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.meArchitecture.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Architecture of Search Based Message Extension]]></Val>
@@ -4225,27 +4141,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.customCopilot.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select an option]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[オプションを選択します]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.customCopilot.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[App Features Using Microsoft 365 Agents SDK]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 エージェント SDK を使用したアプリ機能]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[App Features Using Teams AI Library]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.declarativeAgent.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Create your own agent by declaring instructions, actions, & knowledge to suit your needs.]]></Val>
@@ -4306,36 +4201,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.outlookAddin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Customize the ribbon and Task Pane with your web content for seamless user experiences]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[シームレスなユーザー エクスペリエンスを実現するために、Web コンテンツを使用してリボンと作業ウィンドウをカスタマイズします]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Customize the ribbon and Task Pane with your web content for seamless user experience]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.outlookAddin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Outlook Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Outlook アドイン]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.outlookAddin.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[App Features Using an Outlook Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Outlook アドインを使用したアプリの機能]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.tab.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Microsoft 365 application]]></Val>
@@ -4371,24 +4236,6 @@
           <Val><![CDATA[Teams Agents and Apps]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Teams エージェントとアプリ]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.teamsAgentsAndApps.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Teams Agent or App Using Microsoft Teams SDK]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft Teams SDK を使用した Teams エージェントまたはアプリ]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.teamsCapability.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Teams Capability]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams の機能]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8042,7 +7889,7 @@
         <Str Cat="Text">
           <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Microsoft 365 Agents Toolkit to create it for you or you can create it by yourself.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[テナントに有効なアプリ カタログがありません。Microsoft 365 Agents Toolkit で作成する場合、または自分で作成する場合は、%s 内の 'createAppCatalogIfNotExist' プロパティを true に設定します。]]></Val>
+            <Val><![CDATA[テナントに有効なアプリ カタログがありません。Microsoft 365 エージェント ツールキットで作成する場合、または自分で作成する場合は、%s 内の 'createAppCatalogIfNotExist' プロパティを true に設定します。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Teams Toolkit to create it for you or you can create it by yourself.]]></Val>
@@ -8143,6 +7990,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[validate Teams app.]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.teamsApp.error.localMcpCertVerificationFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MSIX package certificate verification failed. One or more local mcp servers do not have a cert or have a self-signed cert.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MSIX パッケージの証明書検証に失敗しました。1 つ以上のローカル MCP サーバーに証明書がないか、自己署名証明書が使用されています。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9492,12 +9348,12 @@
       </Item>
       <Item ItemId=";error.common.MissingEnvironmentVariablesError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Microsoft 365 Agents Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
+          <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new projects, run local debugging or provision a remote environment to set these variables.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ファイルの環境変数 '%s' がありません: %s。.env ファイルの '%s' または '%s' を編集するか、システム環境変数を調整してください。新しい Microsoft 365 Agents Toolkit プロジェクトの場合は、プロビジョニングまたはデバッグを実行してこれらの変数を正しく設定していることを確認してください。]]></Val>
+            <Val><![CDATA[ファイルの環境変数 '%s' がありません: %s。.env ファイルの '%s' または '%s' を編集するか、システム環境変数を調整してください。新しいプロジェクトの場合は、ローカル デバッグを実行するかリモート環境をプロビジョニングして、これらの変数を設定してください。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Teams Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
+            <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Microsoft 365 Agents Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9967,6 +9823,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.generator.FileConflictError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[File conflict at %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[%s でのファイルの競合]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.generator.MissKeyError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to find key %s]]></Val>
@@ -10273,6 +10138,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[Unable to find the "share" config in the m365agents.yml]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.yamlConfigNotSupported" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share feature only supports m365agents.yml version v1.10 or above, follow [the guide]5D;(https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema) to upgrade and proceed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[共有機能は、m365agents.yml バージョン v1.10 以上のみをサポートしています。アップグレードして続行するには、[ガイド]5D;(https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema) に従ってください。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

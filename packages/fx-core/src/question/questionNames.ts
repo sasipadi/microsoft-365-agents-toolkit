@@ -143,6 +143,9 @@ export enum QuestionNames {
   SelectPluginId = "select-plugin-id",
 
   DAMetaOSCapability = "da-meta-os-capability",
+  MCPServerType = "mcp-server-type",
+  MCPLocalServer = "mcp-local-server",
+  MCPLocalServerIdentifier = "mcp-local-server-identifier",
   MCPForDAServerUrl = "mcp-da-server-url",
   MCPForDAServerName = "mcp-da-server-name",
   MCPForDATool = "mcp-da-tool",

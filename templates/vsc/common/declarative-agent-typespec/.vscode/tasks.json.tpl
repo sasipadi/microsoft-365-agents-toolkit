@@ -4,7 +4,6 @@
 {
     "version": "2.0.0",
     "tasks": [
-{{#ShareEnabled}}
         {
             "label": "Start Agent Locally",
             "dependsOn": [
@@ -19,7 +18,7 @@
             "command": "debug-check-prerequisites",
             "args": {
                 "prerequisites": [
-                    "m365Account"
+                    "copilotAccess"
                 ]
             }
         },
@@ -31,7 +30,6 @@
                 "env": "local"
             }
         }
-{{/ShareEnabled}}
         {
             "label": "Install dependencies",
             "type": "shell",

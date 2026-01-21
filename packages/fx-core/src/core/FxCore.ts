@@ -14,6 +14,7 @@ import {
   ApiOperation,
   AppPackageFolderName,
   BuildFolderName,
+  ConfigFolderName,
   Context,
   CoreCallbackEvent,
   CreateProjectInputs,
@@ -41,7 +42,6 @@ import {
   err,
   ok,
 } from "@microsoft/teamsfx-api";
-import axios from "axios";
 import { DotenvParseOutput } from "dotenv";
 import fs from "fs-extra";
 import * as jsonschema from "jsonschema";
@@ -54,7 +54,6 @@ import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
 import { AppStudioScopes, VSCodeExtensionCommand } from "../common/constants";
 import { listAPIInfo, parseAndUpdatePluginManifestForKiota } from "../common/daSpecParser";
-import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import {
   ErrorContextMW,
   TOOLS,
@@ -62,7 +61,7 @@ import {
   setErrorContext,
   setTools,
 } from "../common/globalVars";
-import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
+import { getLocalizedString } from "../common/localizeUtils";
 import { ListCollaboratorResult, PermissionsResult } from "../common/permissionInterface";
 import {
   getProjectMetadata,
@@ -75,10 +74,11 @@ import {
   projectTypeChecker,
 } from "../common/projectTypeChecker";
 import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/telemetry";
+import templateConfig from "../common/templates-config.json";
 import { runForTypeSpecProject } from "../common/tools";
 import { generateDriverContext } from "../common/utils";
 import { MetadataV3, MetadataV4, VersionSource, VersionState } from "../common/versionMetadata";
-import { ActionInjector } from "../component/configManager/actionInjector";
+
 import {
   APIKeyAuthType,
   MicrosoftEntraAuthType,
@@ -86,12 +86,7 @@ import {
 } from "../component/configManager/constant";
 import { ILifecycle, LifecycleName } from "../component/configManager/interface";
 import { YamlParser } from "../component/configManager/parser";
-import {
-  AadConstants,
-  KiotaLastCommands,
-  SingleSignOnOptionItem,
-  ViewAadAppHelpLinkV5,
-} from "../component/constants";
+import { AadConstants, SingleSignOnOptionItem, ViewAadAppHelpLinkV5 } from "../component/constants";
 import { coordinator } from "../component/coordinator";
 import { UpdateAadAppArgs } from "../component/driver/aad/interface/updateAadAppArgs";
 import { UpdateAadAppDriver } from "../component/driver/aad/update";
@@ -145,6 +140,7 @@ import {
   listOperations,
 } from "../component/generator/openApiSpec/helper";
 import { TemplateNames } from "../component/generator/templates/templateNames";
+import { fetchZipFromUrl, getTemplateLatestVersion, unzip } from "../component/generator/utils";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
 import { MosServiceEndpoint, MosServiceScope } from "../component/m365/serviceConstant";
@@ -199,6 +195,7 @@ import {
 } from "./collaborator";
 import { LocalCrypto } from "./crypto";
 import { environmentNameManager } from "./environmentName";
+import { generateConfigFiles } from "./generateConfigFiles";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ContextInjectorMW } from "./middleware/contextInjector";
 import { ErrorHandlerMW } from "./middleware/errorHandler";
@@ -213,15 +210,16 @@ import {
 import { addSharedUsers, removeShareAccess, shareWithTenant } from "./share";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
+import { FxCoreDeclarativeAgentPart } from "./FxCore.declarativeAgent";
 
-export class FxCore {
+export class FxCore extends FxCoreDeclarativeAgentPart {
   constructor(tools: Tools) {
+    super();
     setTools(tools);
   }
 
   /**
    * @todo this's a really primitive implement. Maybe could use Subscription Model to
-// Copyright (c) Microsoft Corporation.
    * refactor later.
    */
   public on(event: CoreCallbackEvent, callback: CoreCallbackFunc): void {
@@ -1612,7 +1610,7 @@ export class FxCore {
       .toString()
       .split(/\r?\n/)
       .forEach((line) => {
-        const reg = /^([a-zA-Z_][a-zA-Z0-9_]*=)/g;
+        const reg = /^([a-zA-Z_][a-zA-Z0-9_]*=)(.*)/g;
         const match = reg.exec(line);
         if (match) {
           if (match[1].startsWith("TEAMSFX_ENV=")) {
@@ -1620,7 +1618,7 @@ export class FxCore {
           } else if (match[1].startsWith("APP_NAME_SUFFIX=")) {
             writeStream.write(`APP_NAME_SUFFIX=${targetEnvName}${os.EOL}`);
           } else if (match[1].startsWith("AGENT_SCOPE=")) {
-            writeStream.write(`AGENT_SCOPE=shared${os.EOL}`);
+            writeStream.write(`AGENT_SCOPE=${match[2]}${os.EOL}`);
           } else {
             writeStream.write(`${match[1]}${os.EOL}`);
           }
@@ -2035,29 +2033,11 @@ export class FxCore {
       throw new Error("projectPath is undefined"); // should never happen
     }
 
-    // Call Kiota to select the OpenAPI spec file
-    if (
-      inputs.platform === Platform.VSCode &&
-      featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
-      !!!inputs[QuestionNames.ActionManifestPath]
-    ) {
-      return ok({
-        projectPath: inputs.projectPath,
-        lastCommand: KiotaLastCommands.addPlugin,
-        manifestPath: inputs[QuestionNames.ManifestPath],
-      });
-    }
-
     const context = createContext();
     const teamsManifestPath = inputs[QuestionNames.ManifestPath];
     const appPackageFolder = path.dirname(teamsManifestPath);
     const isGenerateFromApiSpec =
       inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id;
-    const isKiotaIntegration =
-      inputs.platform === Platform.VSCode &&
-      featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-      !!inputs[QuestionNames.ActionManifestPath];
 
     // validate the project is valid for adding plugin
     const manifestRes = await manifestUtils._readAppManifest(teamsManifestPath);
@@ -2104,22 +2084,12 @@ export class FxCore {
     let specParser: SpecParser | undefined = undefined;
     let authNameAndSchemes: { authName: string; authScheme: AuthType }[] = [];
 
-    if (isGenerateFromApiSpec && !isKiotaIntegration) {
+    if (isGenerateFromApiSpec) {
       specParser = new SpecParser(
         inputs[QuestionNames.ApiSpecLocation].trim(),
         getParserOptions(ProjectType.Copilot, true)
       );
       const listResult = await listAPIInfo(inputs[QuestionNames.ApiSpecLocation].trim());
-      if (
-        inputs.platform === Platform.VSCode &&
-        featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-        inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
-        !!inputs[QuestionNames.ActionManifestPath]
-      ) {
-        inputs[QuestionNames.ApiOperation] = listResult.APIs.filter((value) => value.isValid).map(
-          (value) => value.api
-        );
-      }
       authNameAndSchemes = this.parseAuthNameAndScheme(listResult, inputs);
 
       if (authNameAndSchemes.length > 0) {
@@ -2167,39 +2137,47 @@ export class FxCore {
     }
 
     let destinationPluginManifestPath: string;
-    if (isKiotaIntegration) {
-      // 1. Copy openapi spec file
-      const openapiSpecFileName = path.basename(inputs[QuestionNames.ApiSpecLocation]);
-      const openapiSpecPath = path.join(appPackageFolder, openapiSpecFileName);
-      await fs.copyFile(inputs[QuestionNames.ApiSpecLocation].trim(), openapiSpecPath);
-
-      // 2. Copy plugin manifest file
-      const pluginManifestPath = path.join(
-        inputs.projectPath,
-        AppPackageFolderName,
-        path.basename(inputs[QuestionNames.ActionManifestPath])
-      );
-      destinationPluginManifestPath = pluginManifestPath;
-      await fs.copyFile(inputs[QuestionNames.ActionManifestPath], pluginManifestPath);
-
-      // 2.1 Need to update the plugin manifest file
-      const authData: any[] = await parseAndUpdatePluginManifestForKiota(pluginManifestPath, true);
-
-      // 3. Update teamsapp.local.yaml and teamsapp.yaml if need to add auth action
-      for (const authInfo of authData) {
-        await injectAuthAction(
-          inputs.projectPath,
-          authInfo.authName,
-          undefined,
-          openapiSpecPath,
-          false,
-          authInfo.authType === "apiKey" ? "ApiKeyPluginVault" : "OAuthPluginVault",
-          false,
-          authInfo.registrationId
+    // generate files
+    if (isGenerateFromApiSpec && specParser) {
+      destinationPluginManifestPath =
+        await copilotGptManifestUtils.getDefaultNextAvailablePluginManifestPath(
+          appPackageFolder,
+          undefined
         );
+      const destinationApiSpecPath = await pluginManifestUtils.getDefaultNextAvailableApiSpecPath(
+        inputs[QuestionNames.ApiSpecLocation].trim(),
+        path.join(appPackageFolder, DefaultApiSpecFolderName)
+      );
+
+      const generateRes = await generateFromApiSpec(
+        specParser,
+        teamsManifestPath,
+        inputs,
+        context,
+        Stage.addPlugin,
+        ProjectType.Copilot,
+        {
+          destinationApiSpecFilePath: destinationApiSpecPath,
+          pluginManifestFilePath: destinationPluginManifestPath,
+        },
+        inputs[QuestionNames.ApiSpecLocation].trim()
+      );
+      if (generateRes.isErr()) {
+        return err(generateRes.error);
       }
 
-      // 4. Add action in plugin manifest
+      const warnings = generateRes.value.warnings;
+      if (warnings && warnings.length > 0) {
+        const warnSummary = await generateScaffoldingSummary(
+          warnings,
+          manifestRes.value,
+          path.relative(inputs.projectPath, destinationApiSpecPath),
+          path.relative(inputs.projectPath, destinationPluginManifestPath),
+          inputs.projectPath
+        );
+        context.logProvider.info(warnSummary + "\n");
+      }
+
       const addActionRes = await copilotGptManifestUtils.addAction(
         declarativeCopilotManifestPath,
         actionId,
@@ -2209,89 +2187,31 @@ export class FxCore {
         return err(addActionRes.error);
       }
 
-      // 5. Update plugin manifest to add ac info (optional)
-      await generateAdaptiveCardInPluginManifestForKiota(
-        pluginManifestPath,
-        openapiSpecPath,
-        context
-      );
-    } else {
-      // generate files
-      if (isGenerateFromApiSpec && specParser) {
-        destinationPluginManifestPath =
-          await copilotGptManifestUtils.getDefaultNextAvailablePluginManifestPath(
-            appPackageFolder,
-            undefined
-          );
-        const destinationApiSpecPath = await pluginManifestUtils.getDefaultNextAvailableApiSpecPath(
-          inputs[QuestionNames.ApiSpecLocation].trim(),
-          path.join(appPackageFolder, DefaultApiSpecFolderName)
+      for (const authNameAndScheme of authNameAndSchemes) {
+        await this.updateAuthActionInYaml(
+          authNameAndScheme.authName,
+          authNameAndScheme.authScheme,
+          inputs.projectPath,
+          destinationApiSpecPath,
+          destinationPluginManifestPath
         );
-
-        const generateRes = await generateFromApiSpec(
-          specParser,
-          teamsManifestPath,
-          inputs,
-          context,
-          Stage.addPlugin,
-          ProjectType.Copilot,
-          {
-            destinationApiSpecFilePath: destinationApiSpecPath,
-            pluginManifestFilePath: destinationPluginManifestPath,
-          },
-          inputs[QuestionNames.ApiSpecLocation].trim()
-        );
-        if (generateRes.isErr()) {
-          return err(generateRes.error);
-        }
-
-        const warnings = generateRes.value.warnings;
-        if (warnings && warnings.length > 0) {
-          const warnSummary = await generateScaffoldingSummary(
-            warnings,
-            manifestRes.value,
-            path.relative(inputs.projectPath, destinationApiSpecPath),
-            path.relative(inputs.projectPath, destinationPluginManifestPath),
-            inputs.projectPath
-          );
-          context.logProvider.info(warnSummary + "\n");
-        }
-
-        const addActionRes = await copilotGptManifestUtils.addAction(
-          declarativeCopilotManifestPath,
-          actionId,
-          normalizePath(path.relative(appPackageFolder, destinationPluginManifestPath), true)
-        );
-        if (addActionRes.isErr()) {
-          return err(addActionRes.error);
-        }
-
-        for (const authNameAndScheme of authNameAndSchemes) {
-          await this.updateAuthActionInYaml(
-            authNameAndScheme.authName,
-            authNameAndScheme.authScheme,
-            inputs.projectPath,
-            destinationApiSpecPath,
-            destinationPluginManifestPath
-          );
-        }
-      } else {
-        const addPluginRes = await addExistingPlugin(
-          declarativeCopilotManifestPath,
-          inputs[QuestionNames.PluginManifestFilePath].trim(),
-          inputs[QuestionNames.PluginOpenApiSpecFilePath].trim(),
-          actionId,
-          context,
-          Stage.addPlugin
-        );
-
-        if (addPluginRes.isErr()) {
-          return err(addPluginRes.error);
-        }
-        destinationPluginManifestPath = addPluginRes.value.destinationPluginManifestPath;
-        const warningMessage = outputScaffoldingWarningMessage(addPluginRes.value.warnings);
-        context.logProvider.info(warningMessage);
       }
+    } else {
+      const addPluginRes = await addExistingPlugin(
+        declarativeCopilotManifestPath,
+        inputs[QuestionNames.PluginManifestFilePath].trim(),
+        inputs[QuestionNames.PluginOpenApiSpecFilePath].trim(),
+        actionId,
+        context,
+        Stage.addPlugin
+      );
+
+      if (addPluginRes.isErr()) {
+        return err(addPluginRes.error);
+      }
+      destinationPluginManifestPath = addPluginRes.value.destinationPluginManifestPath;
+      const warningMessage = outputScaffoldingWarningMessage(addPluginRes.value.warnings);
+      context.logProvider.info(warningMessage);
     }
 
     if (inputs.platform === Platform.VSCode) {
@@ -2977,185 +2897,81 @@ export class FxCore {
     return ok(undefined);
   }
 
+  /**
+   * dynamic template metadata download
+   */
   @hooks([
-    ErrorContextMW({ component: "FxCore", stage: Stage.installApp }),
+    ErrorContextMW({ component: "FxCore", stage: "fetchOnlineTemplateMetadata" }),
     ErrorHandlerMW,
-    QuestionMW("updateActionWithMCP"),
-    ConcurrentLockerMW,
   ])
-  async updateActionWithMCP(inputs: Inputs): Promise<Result<any, FxError>> {
-    const context = createContext();
-    const projectPath = inputs.projectPath;
-    if (!projectPath) {
-      throw new Error("projectPath is undefined"); // should never happen
+  async fetchOnlineTemplateMetadata(): Promise<Result<undefined, FxError>> {
+    if (templateConfig.useLocalTemplate) {
+      return ok(undefined); // Skip if using local templates
     }
-    const aiPluginFilePath = inputs[QuestionNames.PluginManifestFilePath] as string;
-    if (!(await fs.pathExists(aiPluginFilePath))) {
-      const error = new SystemError(
-        "MCPForDAPluginManifestNotFound",
-        "PluginManifestNotFound",
-        getDefaultString("core.MCPForDA.pluginManifestNotFound", aiPluginFilePath),
-        getLocalizedString("core.MCPForDA.pluginManifestNotFound", aiPluginFilePath)
-      );
-      return err(error);
-    }
-    const aiPluginFilePathRelative = path.basename(aiPluginFilePath);
+    // Downloads the latest online template metadata (metadata.zip) into user's home .fx folder.
+    // Caches the template version so subsequent calls avoid redundant downloads if unchanged.
+    try {
+      // Determine latest template version (respect prerelease env variable similar to getTemplateVSCUrl)
+      const coreVersion = require("../../package.json").version as string;
 
-    const mcpServerUrl = inputs[QuestionNames.MCPForDAServerUrl];
-    const serverName = inputs[QuestionNames.MCPForDAServerName] as string;
-    const mcpAuth = inputs[QuestionNames.MCPForDAAuth];
-    const authType = inputs[QuestionNames.MCPForDAAuthType];
-
-    let oauthAuthorizationUrl: string | undefined = undefined;
-    let oauthTokenUrl: string | undefined = undefined;
-    let oauthRefreshUrl: string | undefined = undefined;
-    let registrationId: string | undefined = undefined;
-
-    if (mcpAuth === "OAuthPluginVault") {
-      try {
-        registrationId = `MCP_DA_AUTH_ID_${serverName.toUpperCase()}`;
-        if (authType === "oauth") {
-          let wellKnownMetadataUrl = inputs[QuestionNames.MCPForDAAuthWellKnownUrl];
-          if (!wellKnownMetadataUrl) {
-            const mcpAuthMetadataUrl = inputs[QuestionNames.MCPForDAAuthMetadataUrl];
-            if (!mcpAuthMetadataUrl) {
-              throw new Error(getLocalizedString("core.MCPForDA.mcpAuthMetadataUrlNotFound"));
-            }
-
-            const response = await axios.get(mcpAuthMetadataUrl);
-            if (
-              response.status === 200 &&
-              response.data &&
-              response.data.authorization_servers &&
-              response.data.authorization_servers.length > 0
-            ) {
-              const mcpServerMetadataUrl = response.data.authorization_servers?.[0];
-              // Transform the URL to the proper OAuth authorization server metadata endpoint
-              // According to RFC 8414, the well-known endpoint should be constructed as:
-              // https://{domain}/.well-known/oauth-authorization-server{path}
-              const serverUrl = new URL(mcpServerMetadataUrl);
-              wellKnownMetadataUrl = `${serverUrl.protocol}//${serverUrl.host}/.well-known/oauth-authorization-server${serverUrl.pathname}`;
-            } else {
-              throw new Error(getLocalizedString("core.MCPForDA.mcpServerMetadataUrlNotFound"));
-            }
-          }
-          const metadataResponse = await axios.get(wellKnownMetadataUrl);
-          if (metadataResponse.status === 200) {
-            oauthAuthorizationUrl = metadataResponse.data.authorization_endpoint;
-            oauthTokenUrl = metadataResponse.data.token_endpoint;
-            oauthRefreshUrl = metadataResponse.data.refresh_endpoint;
-          }
-          if (!oauthAuthorizationUrl || !oauthTokenUrl) {
-            throw new Error(getLocalizedString("core.MCPForDA.authUrlNotFound"));
-          }
-        }
-      } catch (error) {
-        void context.userInteraction.showMessage(
-          "error",
-          getLocalizedString("core.MCPForDA.mcpAuthMetadataMissingError", error.message),
-          false
-        );
+      let latestVersion = "0.0.0-rc";
+      if (
+        coreVersion.includes("alpha") ||
+        coreVersion.includes("beta") ||
+        coreVersion.includes("rc")
+      ) {
+        // daily build, prerelease or rc
+        latestVersion = "0.0.0-rc";
+      } else {
+        // stable version
+        latestVersion = await getTemplateLatestVersion();
       }
-    }
 
-    // 2. Read ai-plugin.json
-    const aiPluginContent = await fs.readJSON(aiPluginFilePath);
+      const homedir = os.homedir();
+      const metadataDir = path.join(homedir, `.${String(ConfigFolderName)}`);
+      await fs.ensureDir(metadataDir);
 
-    // For dynamic fetch tools, keep the functions empty and add runtime info
-    // TODO: support dynamic fetch tools in the future
-    const mcpToolsDetail = inputs[QuestionNames.MCPForDAAvailableTools];
-    const mcpToolsSelected = inputs[QuestionNames.MCPForDAPreFetchTools];
-    if (!mcpToolsDetail || !mcpToolsSelected) {
-      const error = new UserError(
-        "MCPForDAPreFetchToolsNotFound",
-        "PreFetchToolsNotFound",
-        getDefaultString("core.MCPForDA.preFetchToolsNotFound"),
-        getLocalizedString("core.MCPForDA.preFetchToolsNotFound")
-      );
-      return err(error);
-    }
-    // aiPluginContent.functions = [];
-    const toolsSelectedPrevious: string[] = [];
-    aiPluginContent.runtimes
-      .filter(
-        (runtime: any) =>
-          runtime.type === "RemoteMCPServer" &&
-          runtime.spec.url === mcpServerUrl &&
-          runtime.spec["enable_dynamic_discovery"] === false
-      )
-      .forEach((runtime: any) => {
-        toolsSelectedPrevious.push(...runtime.run_for_functions);
-      });
-    aiPluginContent.functions = aiPluginContent.functions.filter(
-      (func: any) => !toolsSelectedPrevious.includes(func.name)
-    );
-    aiPluginContent.functions = [
-      ...aiPluginContent.functions,
-      ...mcpToolsDetail
-        .filter((tool: any) => mcpToolsSelected.includes(tool.name))
-        .map((tool: any) => {
-          return {
-            name: tool.name,
-            description: tool.description,
-            parameters: {
-              type: tool.inputSchema.type || "object",
-              properties: tool.inputSchema.properties,
-              required: tool.inputSchema.required || [],
-            },
-          };
-        }),
-    ];
-
-    aiPluginContent.runtimes = aiPluginContent.runtimes.filter(
-      (runtime: any) =>
-        runtime.type !== "RemoteMCPServer" ||
-        runtime.spec.url !== mcpServerUrl ||
-        runtime.spec["enable_dynamic_discovery"] === true
-    );
-    (aiPluginContent.runtimes as any[]).push({
-      type: "RemoteMCPServer",
-      spec: {
-        url: mcpServerUrl,
-        enable_dynamic_discovery: false,
-      },
-      run_for_functions: mcpToolsSelected,
-      auth:
-        mcpAuth === "OAuthPluginVault" && !!registrationId
-          ? {
-              type: "OAuthPluginVault",
-              reference_id: `$\{\{${registrationId}\}\}`,
-            }
-          : undefined,
-    });
-
-    if (mcpAuth === "OAuthPluginVault" && !!registrationId) {
-      // insert oauth info in teamsapp.yaml
-      await ActionInjector.injectCreateOAuthActionForMCP(
-        pathUtils.getYmlFilePath(projectPath) as string,
-        authType,
-        serverName,
-        registrationId,
-        mcpServerUrl,
-        oauthAuthorizationUrl,
-        oauthTokenUrl,
-        oauthRefreshUrl
-      );
-    }
-    void context.userInteraction
-      .showMessage(
-        "info",
-        getLocalizedString("core.MCPForDA.updatePluginManifest", aiPluginFilePathRelative),
-        false,
-        "Provision"
-      )
-      .then((result) => {
-        if (result.isOk() && result.value === "Provision") {
-          void this.provisionResources(inputs);
+      const versionFile = path.join(metadataDir, "template-version.txt");
+      const needDownload = async (): Promise<boolean> => {
+        if (!(await fs.pathExists(versionFile))) return true;
+        try {
+          const cachedVersion = (await fs.readFile(versionFile, "utf-8")).trim();
+          return cachedVersion !== latestVersion;
+        } catch {
+          return true; // re-download if any issue reading cached version
         }
-      });
-    await fs.writeJSON(aiPluginFilePath, aiPluginContent, { spaces: 4 });
-    void context.userInteraction.openFile?.(aiPluginFilePath);
-    return ok(undefined);
+      };
+
+      if (!(await needDownload())) {
+        return ok(undefined); // Already up-to-date
+      }
+
+      // Construct metadata.zip download URL based on tag prefix and version
+      const tag = `${templateConfig.tagPrefix}${latestVersion}`;
+      const metadataZipUrl = `${templateConfig.templateDownloadBaseURL}/${tag}/metadata.zip`;
+
+      const zip = await fetchZipFromUrl(metadataZipUrl);
+      await unzip(zip, metadataDir);
+      await fs.writeFile(versionFile, latestVersion, { encoding: "utf-8" });
+      return ok(undefined);
+    } catch (error: any) {
+      const message = error?.message || "Unknown error while fetching template metadata";
+      const systemErr = new SystemError(
+        "FetchOnlineTemplateMetadata",
+        "DownloadFailed",
+        message,
+        message
+      );
+      return err(systemErr);
+    }
+  }
+
+  /**
+   * dynamic template metadata download
+   */
+  @hooks([ErrorContextMW({ component: "FxCore", stage: "generateConfigFiles" }), ErrorHandlerMW])
+  async generateConfigFiles(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return await generateConfigFiles(inputs);
   }
 
   private async updateAuthActionInYaml(

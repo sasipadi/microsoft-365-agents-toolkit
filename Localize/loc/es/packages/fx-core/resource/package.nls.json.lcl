@@ -3139,24 +3139,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.basicCustomEngineAgentOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Intelligent agent that is built with Microsoft 365 Agents SDK and connects to your LLM]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agente inteligente compilado con el SDK de agentes de Microsoft 365 que se conecta al LLM]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.basicCustomEngineAgentOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Basic Custom Engine Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agente de motor personalizado Básico]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.capability.botMessageExtension.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Create a message extension using Agents SDK]]></Val>
@@ -3310,98 +3292,11 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotBasicOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Agent that chats with users in Teams built with Microsoft Teams SDK and connects to LLMs]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agente que chatea con los usuarios en Teams creado con Microsoft Teams SDK y se conecta a LLM]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Agent that chats with users in Teams built with Teams AI Library and connects to LLMs]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotBasicOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[General Teams Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agente general de Teams]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Basic Agent for Teams]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRag.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select an option to load your data]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Seleccione una opción para cargar los datos]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotRag.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Chat With Your Data]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Interactuar con sus datos]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Load your data from Azure AI Search service]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Cargue los datos del servicio de Búsqueda de Azure AI]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Azure AI Search]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[búsqueda de Azure AI]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagCustomApiOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Load your data from custom APIs based on OpenAPI description document]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Carga de datos desde API personalizadas basadas en el documento de descripción de OpenAPI]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagCustomApiOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Custom API]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[API personalizada]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagCustomizeOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Decide how to load your data]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Decidir cómo cargar los datos]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagCustomizeOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Customize]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Personalizar]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3424,27 +3319,21 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagOption.detail" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.capability.customCopilotTravelOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Agent that uses your content and knowledge to accurately answer domain-specific questions]]></Val>
+          <Val><![CDATA[A travel planning agent, which is built with Microsoft 365 Agents SDK, Microsoft 365 Retrieval API and Agent Framework]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agente que utiliza su contenido y conocimientos para responder con precisión a preguntas específicas del dominio]]></Val>
+            <Val><![CDATA[Un agente de planificación de viajes, creado con el SDK de agentes de Microsoft 365, la API de recuperación de Microsoft 365 y Agent Framework]]></Val>
           </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Expand AI bot's knowledge with your content to get accurate answers to your questions]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagOption.label" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.createProjectQuestion.capability.customCopilotTravelOption.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Agent with Data]]></Val>
+          <Val><![CDATA[Travel Agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agente de Teams con datos]]></Val>
+            <Val><![CDATA[Agente de viajes]]></Val>
           </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Chat With Your Data]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3612,60 +3501,6 @@
           <Val><![CDATA[Select OpenAPI Description Document]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Seleccionar documento de descripción de OpenAPI]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.teamsAgent.collaborator.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Agent that enhances collaboration in group chat, channels or meetings through summarization, task management, and conversation search]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agente que mejora la colaboración en chats grupales, canales o reuniones mediante resúmenes, administración de tareas y búsqueda de conversaciones]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.teamsAgent.collaborator.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Teams Collaborator Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agente colaborador de Teams]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.teamsAgent.others.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[App that uses tab, bot and message extension]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aplicación que utiliza pestañas, bots y extensiones de mensajes]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.teamsAgent.others.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Other Teams Capabilities]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Otras capacidades de Teams]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.weatherAgentOption.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[A weather forecast agent that is built with Microsoft 365 Agents SDK and LangChain]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Un agente de previsión meteorológica, que se compila con el SDK de agentes de Microsoft 365 y LangChain]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.capability.weatherAgentOption.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Weather Agent]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agente de El Tiempo]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4027,6 +3862,87 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpLocalServer.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select a local MCP server]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Seleccionar un servidor MCP local]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpLocalServer.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Local MCP Server]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Servidor MCP local]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpLocalServer.validationHelp" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[At least one MCP server must be selected]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Se debe seleccionar al menos un servidor MCP]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpServerType.local.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connect to an MCP server running on your local Windows system]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Conectarse a un servidor MCP que se ejecuta en el sistema Windows local]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpServerType.local.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Local MCP Server]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Servidor MCP local]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpServerType.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select where your MCP server is hosted]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Seleccione dónde se hospeda el servidor MCP]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpServerType.remote.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connect to an MCP server hosted remotely via HTTP]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Conectarse a un servidor MCP hospedado de forma remota a través de HTTP]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpServerType.remote.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Remote MCP Server]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Servidor MCP remoto]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpServerType.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MCP Server Type]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Tipo de servidor MCP]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.meArchitecture.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Architecture of Search Based Message Extension]]></Val>
@@ -4225,27 +4141,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.customCopilot.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select an option]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Seleccionar una opción]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.customCopilot.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[App Features Using Microsoft 365 Agents SDK]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Características de la aplicación que utilizan el SDK de agentes de Microsoft 365]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[App Features Using Teams AI Library]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.declarativeAgent.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Create your own agent by declaring instructions, actions, & knowledge to suit your needs.]]></Val>
@@ -4306,36 +4201,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.outlookAddin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Customize the ribbon and Task Pane with your web content for seamless user experiences]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Personalice la cinta de opciones y el panel de tareas con el contenido web para una experiencia de usuario sin problemas]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Customize the ribbon and Task Pane with your web content for seamless user experience]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.outlookAddin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Outlook Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Complemento de Outlook]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.outlookAddin.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[App Features Using an Outlook Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Características de la aplicación con un complemento de Outlook]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.tab.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Microsoft 365 application]]></Val>
@@ -4371,24 +4236,6 @@
           <Val><![CDATA[Teams Agents and Apps]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Agentes y aplicaciones de Teams]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.teamsAgentsAndApps.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Teams Agent or App Using Microsoft Teams SDK]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Agente o aplicación de Teams mediante el SDK de Microsoft Teams]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.teamsCapability.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Teams Capability]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Capacidad de Teams]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8146,6 +7993,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.teamsApp.error.localMcpCertVerificationFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MSIX package certificate verification failed. One or more local mcp servers do not have a cert or have a self-signed cert.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Error en la comprobación del certificado del paquete MSIX. Uno o varios servidores MCP locales no tienen certificado o cuentan con un certificado autofirmado.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.teamsApp.progressBar.copyAppPackageToSPFxStepMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Copying app package to SPFx solution...]]></Val>
@@ -9492,12 +9348,12 @@
       </Item>
       <Item ItemId=";error.common.MissingEnvironmentVariablesError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Microsoft 365 Agents Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
+          <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new projects, run local debugging or provision a remote environment to set these variables.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Faltan variables de entorno '%s' para el archivo: %s. Edite el archivo .env '%s' o '%s', o ajuste las variables de entorno del sistema. Para los nuevos proyectos del kit de herramientas de Microsoft 365 Agents, asegúrese de que ha ejecutado el aprovisionamiento o la depuración para establecer estas variables correctamente.]]></Val>
+            <Val><![CDATA[Faltan variables de entorno "%s" para el archivo: %s. Edite el archivo .env "%s" o "%s", o ajuste las variables de entorno del sistema. Para proyectos nuevos, ejecute la depuración local o aprovisione un entorno remoto para establecer estas variables.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Teams Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
+            <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Microsoft 365 Agents Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9731,7 +9587,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to clear blob files in Azure Storage Account '%s'. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[No se pueden borrar los archivos de blob en Azure Storage cuenta ''%s''. Las respuestas de error de Azure son:]A; %s. ]A;Si el mensaje de error especifica el motivo, corrija el error e inténtelo de nuevo.]]></Val>
+            <Val><![CDATA[No se pueden borrar los archivos de blob en la cuenta de almacenamiento de Azure ''%s''. Las respuestas de error de Azure son:]A; %s. ]A;Si el mensaje de error especifica el motivo, corrija el error e inténtelo de nuevo.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9740,7 +9596,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to clear blob files in Azure Storage Account '%s'. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[No se pueden borrar los archivos blob de la cuenta de Azure Storage '%s'. Consulte el [panel de salida]5D;(command:fx-extension.showOutputChannel) para obtener más detalles.]]></Val>
+            <Val><![CDATA[No se pueden borrar los archivos blob de la cuenta de almacenamiento de Azure '%s'. Consulte el [panel de salida]5D;(command:fx-extension.showOutputChannel) para obtener más detalles.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9749,7 +9605,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get Azure Storage container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[No se puede obtener Azure Storage contenedor "%s" en Azure Storage cuenta "%s" debido al error: %s. Las respuestas de error de Azure son:]A; %s. ]A; Si el mensaje de error especifica el motivo, corrija el error e inténtelo de nuevo.]]></Val>
+            <Val><![CDATA[No se puede obtener el contenedor de Azure Storage "%s" en la cuenta de almacenamiento de Azure "%s" debido al error: %s. Las respuestas de error de Azure son:]A; %s. ]A; Si el mensaje de error especifica el motivo, corrija el error e inténtelo de nuevo.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9758,7 +9614,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get Azure Storage container '%s' in Azure Storage Account '%s' due to error: %s. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[No se pueden obtener el contenedor de Azure Storage ''%s'' en Azure Storage cuenta ''%s'' debido al error: %s. Consulte el [panel de salida]5D;(command:fx-extension.showOutputChannel) para obtener más detalles.]]></Val>
+            <Val><![CDATA[No se pueden obtener el contenedor de Azure Storage ''%s'' en la cuenta de almacenamiento de Azure ''%s'' debido al error: %s. Consulte el [panel de salida]5D;(command:fx-extension.showOutputChannel) para obtener más detalles.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9767,7 +9623,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get properties of container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[No se pueden obtener las propiedades del contenedor ''%s'' en Azure Storage cuenta ''%s'' debido al error: %s. Las respuestas de error de Azure son:]A; %s. ]A; Si el mensaje de error especifica el motivo, corrija el error e inténtelo de nuevo.]]></Val>
+            <Val><![CDATA[No se pueden obtener las propiedades del contenedor ''%s'' en la cuenta de almacenamiento de Azure ''%s'' debido al error: %s. Las respuestas de error de Azure son:]A; %s. ]A; Si el mensaje de error especifica el motivo, corrija el error e inténtelo de nuevo.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9776,7 +9632,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get properties of container '%s' in Azure Storage Account '%s' due to error: %s. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[No se pueden obtener las propiedades del contenedor ''%s'' en Azure Storage cuenta ''%s'' debido al error: %s. Consulte el [panel de salida]5D;(command:fx-extension.showOutputChannel) para obtener más detalles.]]></Val>
+            <Val><![CDATA[No se pueden obtener las propiedades del contenedor ''%s'' en la cuenta de almacenamiento de Azure ''%s'' debido al error: %s. Consulte el [panel de salida]5D;(command:fx-extension.showOutputChannel) para obtener más detalles.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9785,7 +9641,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to set properties of container '%s' in Azure Storage Account '%s' due to error: %s. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[No se pueden establecer las propiedades del contenedor ''%s'' en Azure Storage cuenta ''%s'' debido al error: %s. Las respuestas de error de Azure son:]A; %s. ]A; Si el mensaje de error especifica el motivo, corrija el error e inténtelo de nuevo.]]></Val>
+            <Val><![CDATA[No se pueden establecer las propiedades del contenedor ''%s'' en la cuenta de almacenamiento de Azure ''%s'' debido al error: %s. Las respuestas de error de Azure son:]A; %s. ]A; Si el mensaje de error especifica el motivo, corrija el error e inténtelo de nuevo.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9794,7 +9650,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to set properties of container '%s' in Azure Storage Account '%s' due to error: %s. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[No se pueden establecer las propiedades del contenedor ''%s'' en Azure Storage cuenta ''%s'' debido al error: %s. Consulte el [panel de salida]5D;(command:fx-extension.showOutputChannel) para obtener más detalles.]]></Val>
+            <Val><![CDATA[No se pueden establecer las propiedades del contenedor ''%s'' en la cuenta de almacenamiento de Azure ''%s'' debido al error: %s. Consulte el [panel de salida]5D;(command:fx-extension.showOutputChannel) para obtener más detalles.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9803,7 +9659,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to upload local folder '%s' to Azure Storage Account '%s'. The error responses from Azure are:]A; %s. ]A;If the error message specifies the reason, fix the error and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[No se pudo cargar la carpeta local "%s" en la cuenta de Azure Storage "%s". Las respuestas de error de Azure son:]A;%s. ]A;Si el mensaje de error especifica el motivo, corrija el error e inténtelo de nuevo.]]></Val>
+            <Val><![CDATA[No se pudo cargar la carpeta local "%s" en la cuenta de almacenamiento de Azure "%s". Las respuestas de error de Azure son:]A;%s. ]A;Si el mensaje de error especifica el motivo, corrija el error e inténtelo de nuevo.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9812,7 +9668,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to upload local folder '%s' to Azure Storage Account '%s'. Refer to the [Output panel]5D;(command:fx-extension.showOutputChannel) for more details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[No se puede cargar el '%s' de la carpeta local en el '%s' de la cuenta de Azure Storage. Consulte el [panel de salida]5D;(command:fx-extension.showOutputChannel) para obtener más detalles.]]></Val>
+            <Val><![CDATA[No se puede cargar el '%s' de la carpeta local en el '%s' de la cuenta de almacenamiento de Azure. Consulte el [panel de salida]5D;(command:fx-extension.showOutputChannel) para obtener más detalles.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10273,6 +10129,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[Unable to find the "share" config in the m365agents.yml]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.yamlConfigNotSupported" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share feature only supports m365agents.yml version v1.10 or above, follow [the guide]5D;(https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema) to upgrade and proceed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[La función Compartir solo es compatible con la versión v1.10 o superior de m365agents.yml. Siga [la guía]5D;(https://github.com/OfficeDev/microsoft-365-agents-toolkit/wiki/Share-Declarative-Agents-with-Others#About-YAML-schema) para actualizar y continuar.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -11057,7 +10922,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Check if you have permissions to your Azure Storage Account.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Compruebe si tiene permisos para su cuenta de Azure Storage.]]></Val>
+            <Val><![CDATA[Compruebe si tiene permisos para su cuenta de almacenamiento de Azure.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
